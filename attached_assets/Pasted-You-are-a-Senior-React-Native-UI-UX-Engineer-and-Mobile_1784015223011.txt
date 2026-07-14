@@ -1,0 +1,229 @@
+You are a Senior React Native UI/UX Engineer and Mobile Product Designer.
+
+Build ONLY the frontend UI for a mobile application.
+
+This is a Hackathon MVP.
+
+Do NOT implement backend.
+
+Do NOT implement authentication.
+
+Do NOT implement APIs.
+
+Prepare every screen for future API integration using mocked data only.
+
+========================================================
+
+TECH STACK
+
+React Native
+
+Expo
+
+TypeScript
+
+React Navigation
+
+React Hook Form
+
+Zod
+
+Axios
+
+========================================================
+
+DESIGN STYLE
+
+The application should look like a premium fintech application.
+
+Inspiration
+
+CRED
+
+Google Pay
+
+PhonePe
+
+Paytm
+
+Stripe
+
+Linear
+
+Clerk
+
+Use
+
+White background
+
+Blue primary color
+
+Rounded cards
+
+Large buttons
+
+Premium typography
+
+Beautiful spacing
+
+Soft shadows
+
+Smooth animations
+
+Minimal icons
+
+Modern components
+
+Avoid
+
+Government style
+
+Old looking UI
+
+Colorful dashboards
+
+Glassmorphism
+
+Gradients everywhere
+
+========================================================
+
+CREATE ONLY THESE 5 SCREENS
+
+========================================================
+
+1.
+
+Landing Screen
+
+Contains
+
+Application Logo
+
+App Name
+
+Short Description
+
+Illustration
+
+Begin Verification Button
+
+========================================================
+
+2.
+
+Sign In / Sign Up
+
+Only
+
+Username
+
+Password
+
+Forgot Password
+
+Sign In
+
+Sign Up
+
+Continue
+
+Mock validation only
+
+========================================================
+
+3.
+
+Identity Verification
+
+Fields
+
+Aadhaar Number
+
+PAN Number
+
+Continue Button
+
+Validation Messages
+
+Simple API placeholder
+
+POST
+
+/api/identity
+
+========================================================
+
+4.
+
+Verification Processing
+
+Full screen loader
+
+Progress animation
+
+Status Timeline
+
+Connecting
+
+Verifying
+
+Checking Identity
+
+Fetching Government Data
+
+Please wait...
+
+This screen should feel premium.
+
+========================================================
+
+5.
+
+Selfie Verification
+
+Large Camera Placeholder
+
+Capture Selfie Button
+
+Preview Area
+
+Retake Button
+
+Submit Button
+
+No actual camera implementation.
+
+Only UI.
+
+========================================================
+
+PROJECT STRUCTURE
+
+Create
+
+navigation
+
+screens
+
+components
+
+hooks
+
+services
+
+types
+
+constants
+
+assets
+
+Mock API layer.
+
+Responsive.
+
+Beautiful.
+
+Production quality.
+
+Build ONLY these five screens.
