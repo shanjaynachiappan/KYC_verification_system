@@ -15,6 +15,9 @@ export interface UserInfo {
   pan?: string;
   verifiedAt?: string;
   selfieSubmitted?: boolean;
+  selfieMatchScore?: number;
+  documentUploaded?: boolean;
+  documentType?: string;
 }
 
 interface AppState {
@@ -37,7 +40,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [user, setUser] = useState<UserInfo | null>(null);
 
-  // Load persisted state on mount
   useEffect(() => {
     (async () => {
       try {
@@ -102,17 +104,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AppContext.Provider
-      value={{
-        theme,
-        toggleTheme,
-        isSignedUp,
-        isSignedIn,
-        user,
-        signUp,
-        signIn,
-        signOut,
-        updateUser,
-      }}
+      value={{ theme, toggleTheme, isSignedUp, isSignedIn, user, signUp, signIn, signOut, updateUser }}
     >
       {children}
     </AppContext.Provider>

@@ -71,7 +71,8 @@ export default function ProcessingScreen() {
       setDone(true);
       await updateUser({ verifiedAt: new Date().toISOString() });
       Animated.spring(doneScale, { toValue: 1, useNativeDriver: true, speed: 10, bounciness: 12 }).start();
-      setTimeout(() => router.push('/selfie'), 1000);
+      // Navigate to Document Upload screen (next step)
+      setTimeout(() => router.push('/documents'), 1000);
     }, totalDelay);
     timers.push(tDone);
 
@@ -109,7 +110,7 @@ export default function ProcessingScreen() {
         </Text>
         <Text style={[styles.statusSub, { color: colors.mutedForeground }]}>
           {done
-            ? 'Your records have been confirmed.'
+            ? 'Proceeding to document upload…'
             : 'Please keep the app open. This takes a few seconds.'}
         </Text>
 

@@ -35,6 +35,7 @@ function RootLayoutNav() {
       <Stack.Screen name="auth" />
       <Stack.Screen name="identity" />
       <Stack.Screen name="processing" />
+      <Stack.Screen name="documents" />
       <Stack.Screen name="selfie" />
     </Stack>
   );
