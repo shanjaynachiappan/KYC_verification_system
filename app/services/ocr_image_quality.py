@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 
 
-def check_document_blur(image, threshold=100.0):
+def check_ocr_image_blur(image, threshold=100.0):
 
-    # Convert document image to grayscale
+    # Convert image to grayscale
     gray_image = cv2.cvtColor(
         image,
         cv2.COLOR_BGR2GRAY
@@ -16,17 +16,17 @@ def check_document_blur(image, threshold=100.0):
         cv2.CV_64F
     ).var()
 
-    # Check whether document is blurry
+    # Check whether image is blurry
     is_blurry = blur_score < threshold
 
-    print("\n----- DOCUMENT BLUR CHECK -----")
+    print("\n----- OCR IMAGE BLUR CHECK -----")
     print("Blur Score :", round(float(blur_score), 2))
     print("Threshold  :", threshold)
 
     if is_blurry:
-        print("Result     : DOCUMENT IS BLURRY ❌")
+        print("Result     : IMAGE IS BLURRY ❌")
     else:
-        print("Result     : DOCUMENT IS CLEAR ✅")
+        print("Result     : IMAGE IS CLEAR ✅")
 
     print("--------------------------------\n")
 
@@ -37,13 +37,13 @@ def check_document_blur(image, threshold=100.0):
     }
 
 
-def check_document_overexposure(
+def check_ocr_image_overexposure(
     image,
     brightness_threshold=240,
     pixel_percentage_threshold=30.0
 ):
 
-    # Convert document image to grayscale
+    # Convert image to grayscale
     gray_image = cv2.cvtColor(
         image,
         cv2.COLOR_BGR2GRAY
@@ -62,13 +62,13 @@ def check_document_overexposure(
         bright_pixels / total_pixels
     ) * 100
 
-    # Check whether document is overexposed
+    # Check whether image is overexposed
     is_overexposed = (
         bright_pixel_percentage
         >= pixel_percentage_threshold
     )
 
-    print("\n----- DOCUMENT OVEREXPOSURE CHECK -----")
+    print("\n----- OCR IMAGE OVEREXPOSURE CHECK -----")
     print(
         "Bright Pixel Percentage :",
         round(float(bright_pixel_percentage), 2)
@@ -83,11 +83,11 @@ def check_document_overexposure(
     )
 
     if is_overexposed:
-        print("Result                   : DOCUMENT IS OVEREXPOSED ❌")
+        print("Result                   : IMAGE IS OVEREXPOSED ❌")
     else:
-        print("Result                   : DOCUMENT LIGHTING IS ACCEPTABLE ✅")
+        print("Result                   : IMAGE LIGHTING IS ACCEPTABLE ✅")
 
-    print("---------------------------------------\n")
+    print("-----------------------------------------\n")
 
     return {
         "is_overexposed": bool(is_overexposed),
