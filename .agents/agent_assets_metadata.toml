@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "q6dvZXgRV4nYX1Z4hV8eE"
+uri = "file://VerifyPay_Documentation.pdf"
+type = "pdf"
+title = "VerifyPay KYC — Complete Technical Documentation"
