@@ -29,40 +29,21 @@ export default function PrimaryButton({
   const colors = useColors();
   const scale = useRef(new Animated.Value(1)).current;
 
-  const handlePressIn = () => {
-    Animated.spring(scale, {
-      toValue: 0.97,
-      useNativeDriver: true,
-      speed: 50,
-      bounciness: 0,
-    }).start();
-  };
+  const handlePressIn = () =>
+    Animated.spring(scale, { toValue: 0.97, useNativeDriver: true, speed: 50, bounciness: 0 }).start();
 
-  const handlePressOut = () => {
-    Animated.spring(scale, {
-      toValue: 1,
-      useNativeDriver: true,
-      speed: 30,
-      bounciness: 4,
-    }).start();
-  };
+  const handlePressOut = () =>
+    Animated.spring(scale, { toValue: 1, useNativeDriver: true, speed: 30, bounciness: 4 }).start();
 
   const isSolid = variant === 'solid';
   const isOutline = variant === 'outline';
 
   const buttonBg = isSolid
-    ? disabled || loading
-      ? colors.primaryLight
-      : colors.primary
-    : isOutline
-    ? 'transparent'
+    ? disabled || loading ? colors.primaryLight : colors.primary
     : 'transparent';
 
-  const borderColor = isOutline ? colors.primary : 'transparent';
   const textColor = isSolid
-    ? disabled || loading
-      ? colors.primary
-      : '#FFFFFF'
+    ? disabled || loading ? colors.primary : '#FFFFFF'
     : colors.primary;
 
   return (
@@ -77,16 +58,15 @@ export default function PrimaryButton({
           styles.button,
           {
             backgroundColor: buttonBg,
-            borderColor,
+            borderColor: isOutline ? colors.primary : 'transparent',
             borderWidth: isOutline ? 1.5 : 0,
           },
         ]}
       >
-        {loading ? (
-          <ActivityIndicator color={textColor} size="small" />
-        ) : (
-          <Text style={[styles.label, { color: textColor }]}>{label}</Text>
-        )}
+        {loading
+          ? <ActivityIndicator color={textColor} size="small" />
+          : <Text style={[styles.label, { color: textColor }]}>{label}</Text>
+        }
       </TouchableOpacity>
     </Animated.View>
   );

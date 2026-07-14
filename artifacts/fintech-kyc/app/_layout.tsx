@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { View } from 'react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
@@ -13,10 +14,18 @@ import {
 } from '@expo-google-fonts/inter';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { AppProvider, useApp } from '@/contexts/AppContext';
+import colors from '@/constants/colors';
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
+
+function ThemedBackground({ children }: { children: React.ReactNode }) {
+  const { theme } = useApp();
+  const bg = theme === 'dark' ? colors.dark.background : colors.light.background;
+  return <View style={{ flex: 1, backgroundColor: bg }}>{children}</View>;
+}
 
 function RootLayoutNav() {
   return (
@@ -47,16 +56,20 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <SafeAreaProvider>
-      <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <KeyboardProvider>
-              <RootLayoutNav />
-            </KeyboardProvider>
-          </GestureHandlerRootView>
-        </QueryClientProvider>
-      </ErrorBoundary>
-    </SafeAreaProvider>
+    <AppProvider>
+      <SafeAreaProvider>
+        <ErrorBoundary>
+          <QueryClientProvider client={queryClient}>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <KeyboardProvider>
+                <ThemedBackground>
+                  <RootLayoutNav />
+                </ThemedBackground>
+              </KeyboardProvider>
+            </GestureHandlerRootView>
+          </QueryClientProvider>
+        </ErrorBoundary>
+      </SafeAreaProvider>
+    </AppProvider>
   );
 }

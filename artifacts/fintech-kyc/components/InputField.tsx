@@ -1,4 +1,4 @@
-import React, { useState, forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '@/hooks/useColors';
 
 interface InputFieldProps extends TextInputProps {
@@ -37,7 +37,9 @@ const InputField = forwardRef<TextInput, InputFieldProps>(
             styles.inputRow,
             {
               borderColor,
-              backgroundColor: focused ? '#FAFBFF' : colors.card,
+              backgroundColor: focused
+                ? colors.background
+                : colors.card,
             },
           ]}
         >
@@ -55,11 +57,11 @@ const InputField = forwardRef<TextInput, InputFieldProps>(
             <TouchableOpacity
               onPress={() => setVisible((v) => !v)}
               style={styles.eyeBtn}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Feather
-                name={visible ? 'eye-off' : 'eye'}
-                size={18}
+              <Ionicons
+                name={visible ? 'eye-off-outline' : 'eye-outline'}
+                size={19}
                 color={colors.mutedForeground}
               />
             </TouchableOpacity>
@@ -67,7 +69,7 @@ const InputField = forwardRef<TextInput, InputFieldProps>(
         </View>
         {error ? (
           <View style={styles.errorRow}>
-            <Feather name="alert-circle" size={13} color={colors.destructive} />
+            <Ionicons name="alert-circle-outline" size={13} color={colors.destructive} />
             <Text style={[styles.errorText, { color: colors.destructive }]}>{error}</Text>
           </View>
         ) : hint ? (
@@ -79,13 +81,10 @@ const InputField = forwardRef<TextInput, InputFieldProps>(
 );
 
 InputField.displayName = 'InputField';
-
 export default InputField;
 
 const styles = StyleSheet.create({
-  wrapper: {
-    marginBottom: 16,
-  },
+  wrapper: { marginBottom: 16 },
   label: {
     fontSize: 13,
     fontFamily: 'Inter_500Medium',
@@ -105,22 +104,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Inter_400Regular',
   },
-  eyeBtn: {
-    paddingLeft: 8,
-  },
+  eyeBtn: { paddingLeft: 8 },
   errorRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 5,
     gap: 4,
   },
-  errorText: {
-    fontSize: 12,
-    fontFamily: 'Inter_400Regular',
-  },
-  hint: {
-    fontSize: 12,
-    fontFamily: 'Inter_400Regular',
-    marginTop: 5,
-  },
+  errorText: { fontSize: 12, fontFamily: 'Inter_400Regular' },
+  hint: { fontSize: 12, fontFamily: 'Inter_400Regular', marginTop: 5 },
 });
