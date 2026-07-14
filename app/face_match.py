@@ -19,8 +19,8 @@ from pathlib import Path
 import cv2
 from deepface import DeepFace
 
-from app.face_detection import detect_face
-from app.selfie_quality import check_face_blur, check_face_overexposure
+from app.services.face_detection import detect_face
+from app.services.selfie_quality import check_face_blur, check_face_overexposure
 
 
 def _decode_base64_to_tempfile(b64_string: str) -> str:
