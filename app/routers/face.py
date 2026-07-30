@@ -35,6 +35,7 @@ def match(payload: schemas.FaceMatchRequest, db: Session = Depends(get_db)):
     if status_row:
         status_row.state = "face_matched" if result["matched"] else "face_match_failed"
         status_row.face_match_passed = result["matched"]
+        status_row.selfie_base64 = payload.selfie_base64
         decisioning.recompute_final_status(status_row)
 
     db.commit()

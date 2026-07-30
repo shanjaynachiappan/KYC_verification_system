@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
-from app.routers import users, ekyc, pan, face, aml, status, selfie, ocr
+from app.routers import users, ekyc, pan, face, aml, status, selfie, ocr, review
 
 # Creates kyc_demo.db and all tables on first run. Fine for a demo;
 # in a real project you'd use Alembic migrations instead.
@@ -33,6 +33,7 @@ app.include_router(pan.router)
 app.include_router(face.router)
 app.include_router(aml.router)
 app.include_router(status.router)
+app.include_router(review.router)
 
 # OpenCV quality-gate + OCR routes
 app.include_router(selfie.router)

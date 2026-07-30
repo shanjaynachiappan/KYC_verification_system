@@ -92,6 +92,7 @@ class VerificationStatus(Base):
     face_match_passed = Column(Boolean, nullable=True)
     aml_flagged = Column(Boolean, nullable=True)
     final_status = Column(String, nullable=True)  # verified / flagged / pending
+    selfie_base64 = Column(Text, nullable=True)  # last submitted selfie -- kept for officer review UI
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user = relationship("User", back_populates="status")
