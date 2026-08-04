@@ -1,83 +1,141 @@
 from paddleocr import PaddleOCR
 
+# --------------------------------------------
+# Initialize PaddleOCR (Only Once)
+# --------------------------------------------
 
-# Initialize PaddleOCR only once
 ocr = PaddleOCR(
     lang="en"
 )
 
 
-def extract_text_from_image(image):
+# --------------------------------------------
+# OCR Extraction Function
+# --------------------------------------------
 
-    print("\n----- STARTING PADDLE OCR -----")
+def extract_text_from_image(image):
+    """
+    Extract text from the uploaded image using PaddleOCR.
+
+    Parameters
+    ----------
+    image : numpy.ndarray
+
+    Returns
+    -------
+    {
+        "text_found": bool,
+        "extracted_text": list,
+        "full_text": str,
+        "error": str (optional)
+    }
+    """
+
+    print("\n========== STARTING PADDLE OCR ==========\n")
 
     try:
-        # Run PaddleOCR
+
+        # ------------------------------------
+        # Run OCR
+        # ------------------------------------
+
         result = ocr.predict(image)
 
         extracted_text = []
 
-        # Read every OCR result
-        for ocr_result in result:
+        # ------------------------------------
+        # Parse OCR Result
+        # ------------------------------------
 
-            result_data = ocr_result.json
+        for page in result:
 
-            # Check whether OCR result contains "res"
+            if not hasattr(page, "json"):
+                continue
+
+            result_data = page.json
+
             if "res" not in result_data:
                 continue
 
-            # Get recognized text lines
             recognition_texts = result_data["res"].get(
                 "rec_texts",
                 []
             )
 
-            # Store every valid text line
             for text in recognition_texts:
 
-                if text and text.strip():
-                    extracted_text.append(
-                        text.strip()
-                    )
+                if text is None:
+                    continue
 
-        # Join all text lines
+                text = text.strip()
+
+                if text:
+                    extracted_text.append(text)
+
+        # ------------------------------------
+        # Join Text
+        # ------------------------------------
+
         full_text = "\n".join(extracted_text)
 
-        print("\n----- OCR TEXT EXTRACTION -----")
-        print("Text Lines Found :", len(extracted_text))
+        # ------------------------------------
+        # Debug Output
+        # ------------------------------------
+
+        print("---------- OCR RESULT ----------")
+
+        print(
+            "Number of Text Lines :",
+            len(extracted_text)
+        )
 
         if extracted_text:
 
-            for index, text in enumerate(
+            for index, line in enumerate(
                 extracted_text,
                 start=1
             ):
-                print(
-                    f"{index}. {text}"
-                )
 
-            print("Result           : TEXT DETECTED ✅")
+                print(f"{index}. {line}")
+
+            print("\nOCR Status : TEXT DETECTED ✅")
 
         else:
-            print("Result           : NO TEXT DETECTED ❌")
 
-        print("--------------------------------")
+            print("\nOCR Status : NO TEXT DETECTED ❌")
+
+        print("--------------------------------\n")
+
+        # ------------------------------------
+        # Return Result
+        # ------------------------------------
 
         return {
+
             "text_found": len(extracted_text) > 0,
+
             "extracted_text": extracted_text,
+
             "full_text": full_text
+
         }
 
     except Exception as error:
 
-        print("\n----- OCR ERROR -----")
-        print("Error :", str(error))
-        print("---------------------\n")
+        print("\n========== OCR ERROR ==========")
+
+        print(str(error))
+
+        print("===============================\n")
 
         return {
+
             "text_found": False,
+
             "extracted_text": [],
+
             "full_text": "",
+
             "error": str(error)
+
         }

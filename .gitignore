@@ -1,24 +1,79 @@
-# Python virtual environment
 venv/
-
-# Python cache files
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# Environment variables
-.env
-
-# VS Code settings
-.vscode/
-
-# Python testing/cache
 .pytest_cache/
+.env
+.env.local
+.env.*.local
 
+# ==========================
+# Editors / IDE
+# ==========================
+.vscode/
+.idea/
+*.swp
+
+# ==========================
 # OS files
+# ==========================
 .DS_Store
 Thumbs.db
 
+# ==========================
 # Logs
+# ==========================
 *.log
+
+# ==========================
+# Model weights — large binary files, don't belong in git
+# ==========================
+app/services/deepfake/weights/*.pth
+app/services/deepfake/weights/*.p
+app/services/anti_spoof/weights/*.pth
+*.pth
+*.pt
+*.onnx
+*.h5
+
+# ==========================
+# Hugging Face model cache (if ever created locally inside the project)
+# ==========================
+.cache/
+huggingface_cache/
+
+# ==========================
+# Saved face images / outputs — contains PII, must not be committed
+# ==========================
+app/output/
+outputs/
+*.jpg
+*.jpeg
+*.png
+
+# ==========================
+# Diagnostic/throwaway debug scripts
+# ==========================
+inspect_checkpoint.py
+checkpoint_layers.txt
+
+# ==========================
+# Frontend (React + Vite)
+# ==========================
+node_modules/
+dist/
+frontend/node_modules/
+frontend/dist/
+.vite/
+
+# ==========================
+# Database (local Postgres data, if run via Docker)
+# ==========================
+*.sql
+pgdata/
+
+# ==========================
+# Docker
+# ==========================
+.dockerignore
