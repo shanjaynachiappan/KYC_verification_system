@@ -5,6 +5,7 @@ import {
   FolderSearch,
   ScanFace,
   FileCheck,
+  FileScan,
   Search,
   Bell,
   ChevronDown,
@@ -23,6 +24,7 @@ const sidebarItems = [
   { label: 'Verification Workspace', icon: FolderSearch, route: ROUTES.DASHBOARD },
   { label: 'Face Verification', icon: ScanFace, route: ROUTES.DASHBOARD },
   { label: 'Results', icon: FileCheck, route: ROUTES.DASHBOARD },
+  { label: 'Document & AI Checks', icon: FileScan, route: ROUTES.DOCUMENT_CHECKS },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
@@ -51,7 +53,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </p>
           {sidebarItems.map((item, i) => {
             const Icon = item.icon;
-            const active = i === 0 && location.pathname === ROUTES.DASHBOARD;
+            const active =
+              item.route === ROUTES.DASHBOARD
+                ? i === 0 && location.pathname === ROUTES.DASHBOARD
+                : location.pathname === item.route;
             return (
               <Link
                 key={item.label}

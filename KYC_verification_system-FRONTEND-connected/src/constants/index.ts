@@ -15,6 +15,7 @@ export const ROUTES = {
   WORKSPACE: '/workspace/:referenceId',
   FACE: '/face/:referenceId',
   RESULT: '/result/:referenceId',
+  DOCUMENT_CHECKS: '/document-checks',
 } as const;
 
 export const STATUS_CONFIG: Record<
@@ -93,4 +94,5 @@ export const SIDEBAR_ITEMS = [
   { label: 'Verification Workspace', icon: 'FolderSearch', route: '/dashboard' },
   { label: 'Face Verification', icon: 'ScanFace', route: '/dashboard' },
   { label: 'Results', icon: 'FileCheck', route: '/dashboard' },
+  { label: 'Document & AI Checks', icon: 'FileScan', route: '/document-checks' },
 ] as const;

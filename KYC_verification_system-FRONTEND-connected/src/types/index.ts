@@ -148,3 +148,98 @@ export interface HourlyDataPoint {
   hour: string;
   requests: number;
 }
+
+/*
+ * Document/AI-detection endpoint types below.
+ *
+ * Unlike the types above (which mirror /review/* -- pre-aggregated into
+ * frontend-friendly camelCase, see services/index.ts's header comment),
+ * these mirror the RAW JSON shape /passport, /payslip, /deepfake, and
+ * /ai-generated actually return -- snake_case, straight from the Python
+ * backend, no transformation layer. There is currently no page in this
+ * frontend that calls them (this dashboard is officer/review-only; these
+ * 4 endpoints are file-upload checks with no applicant-facing upload flow
+ * built yet). Service functions are provided in
+ * services/documentVerificationService.ts, ready to call once a page
+ * needs them -- see that file's header comment for where they'd plug in.
+ */
+
+export interface ImageQualityResult {
+  is_blurry: boolean;
+  blur_score: number;
+  threshold: number;
+}
+
+export interface DocumentQualityCheck {
+  is_valid: boolean;
+  blur: ImageQualityResult;
+  glare: {
+    is_glare: boolean;
+    glare_percentage: number;
+  };
+  resolution: {
+    is_low_resolution: boolean;
+    width: number;
+    height: number;
+  };
+}
+
+export interface OcrResult {
+  text_found: boolean;
+  extracted_text: string[];
+  full_text: string;
+}
+
+export interface PassportExtractedData {
+  passport_number: string | null;
+  name: string | null;
+  date_of_birth: string | null;
+  date_of_expiry: string | null;
+  gender: string | null;
+  nationality: string | null;
+  place_of_birth: string | null;
+  place_of_issue: string | null;
+  [key: string]: unknown;
+}
+
+export interface PassportExtractionResult {
+  success: boolean;
+  stage?: 'image_quality' | 'ocr';
+  message?: string;
+  document_type?: 'passport';
+  quality_result?: DocumentQualityCheck;
+  ocr?: OcrResult;
+  validation?: { is_valid: boolean; [key: string]: unknown };
+  data?: PassportExtractedData;
+}
+
+export interface PayslipExtractedData {
+  employee_name: string | null;
+  employee_id: string | null;
+  company_name: string | null;
+  designation: string | null;
+  department: string | null;
+  pay_period: string | null;
+  [key: string]: unknown;
+}
+
+export interface PayslipExtractionResult {
+  success: boolean;
+  stage?: 'image_quality' | 'ocr';
+  message?: string;
+  document_type?: 'payslip';
+  quality_result?: DocumentQualityCheck;
+  ocr?: OcrResult;
+  validation?: { is_valid: boolean; [key: string]: unknown };
+  data?: PayslipExtractedData;
+}
+
+export interface DeepfakeCheckResult {
+  prediction: 'Real' | 'Fake';
+  confidence: number;
+}
+
+export interface AiGeneratedCheckResult {
+  prediction: 'Real' | 'AI Generated';
+  confidence: number;
+}

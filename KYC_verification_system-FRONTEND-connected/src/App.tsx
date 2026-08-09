@@ -7,6 +7,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { WorkspacePage } from './pages/WorkspacePage';
 import { FaceVerificationPage } from './pages/FaceVerificationPage';
 import { ResultPage } from './pages/ResultPage';
+import { DocumentChecksPage } from './pages/DocumentChecksPage';
 import { ROUTES } from './constants';
 import type { ReactNode } from 'react';
 
@@ -52,6 +53,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <ResultPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={ROUTES.DOCUMENT_CHECKS}
+        element={
+          <ProtectedRoute>
+            <DocumentChecksPage />
           </ProtectedRoute>
         }
       />
