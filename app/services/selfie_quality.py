@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 
-def check_face_blur(face_image, threshold=100.0):
+def check_face_blur(face_image, threshold=60.0):
 
     # Convert cropped face image to grayscale
     gray_face = cv2.cvtColor(

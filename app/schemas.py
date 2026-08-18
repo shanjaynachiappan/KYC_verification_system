@@ -62,6 +62,7 @@ class CrossCheckResponse(BaseModel):
 class FaceMatchRequest(BaseModel):
     user_id: str
     selfie_base64: str  # raw base64 image data from the browser camera capture
+    source: Optional[str] = "live"
 
 
 class FaceMatchResponse(BaseModel):

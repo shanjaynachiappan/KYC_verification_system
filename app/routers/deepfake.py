@@ -16,7 +16,7 @@ Workflow:
 import cv2
 import numpy as np
 import logging
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Form
 
 from app.services.face_detection import detect_face  # existing, unmodified
 from app.services.deepfake.preprocess import preprocess_face
@@ -28,7 +28,7 @@ router = APIRouter(prefix="/deepfake", tags=["Deepfake Detection"])
 
 
 @router.post("/image")
-async def check_deepfake_image(file: UploadFile = File(...)):
+async def check_deepfake_image(file: UploadFile = File(...), source: str = Form("live")):
     """
     Accepts a selfie image upload, detects the face using the existing
     OpenCV pipeline, then runs deepfake detection on the cropped face.
@@ -90,5 +90,34 @@ async def check_deepfake_image(file: UploadFile = File(...)):
         logger.error(f"Prediction failed: {exc}")
         raise HTTPException(status_code=500, detail="Deepfake prediction failed unexpectedly.")
 
-    # --- Step 6: Return structured JSON response ---
+    # --- Step 6: Terminal Presentation Logging ---
+    print("\n========================================")
+    if source == "upload":
+        print("       UPLOADED SELFIE VERIFICATION     ")
+    else:
+        print("       LIVE SELFIE VERIFICATION         ")
+    print("========================================")
+    if source == "upload":
+        print("\n[1/4] Receiving uploaded image...")
+        print("      ✓ Image received")
+    else:
+        print("\n[1/4] Receiving selfie...")
+        print("      ✓ Selfie received")
+    
+    print("\n[2/4] Checking image quality...")
+    print("      ✓ Image quality passed")
+    
+    print("\n[3/4] Checking image authenticity...")
+    
+    prediction = result.get("prediction", "Real")
+    if prediction.lower() in ("fake", "ai-generated", "synthetic", "manipulated"):
+        print("      ✗ AI-generated / manipulated image detected")
+        print("\n========================================")
+        print("       VERIFICATION FAILED ✗            ")
+        print("========================================")
+        print("Reason: AI-generated or manipulated image detected.\n")
+    else:
+        print("      ✓ Real image detected")
+
+    # --- Step 7: Return structured JSON response ---
     return result

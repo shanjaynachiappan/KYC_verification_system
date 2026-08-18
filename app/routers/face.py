@@ -31,6 +31,20 @@ def match(payload: schemas.FaceMatchRequest, db: Session = Depends(get_db)):
 
     result = face_match.match_faces(payload.selfie_base64, aadhaar_doc.photo_base64)
 
+    # Terminal presentation logging for Face Match
+    print("\n[4/4] Matching face with Aadhaar...")
+    if result.get("matched"):
+        print("      ✓ Face matched successfully")
+        print("\n========================================")
+        print("       VERIFICATION SUCCESSFUL ✓        ")
+        print("========================================\n")
+    else:
+        print("      ✗ Face does not match Aadhaar")
+        print("\n========================================")
+        print("       VERIFICATION FAILED ✗            ")
+        print("========================================")
+        print("Reason: Face mismatch.\n")
+
     status_row = db.query(models.VerificationStatus).filter_by(user_id=payload.user_id).first()
     if status_row:
         status_row.state = "face_matched" if result["matched"] else "face_match_failed"
