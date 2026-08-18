@@ -83,3 +83,12 @@ dist/
 *.tmp
 *.temp
 *.bak
+
+# ================================
+# Frontend
+# ================================
+frontend_ans/node_modules/
+frontend_ans/dist/
+frontend_ans/.env
+frontend_ans/.env.local
+frontend_ans/.env.*.local
