@@ -11,7 +11,7 @@ import FinalReviewPage from '../pages/FinalReviewPage';
 import DocumentVerificationPage from '../pages/DocumentVerificationPage';
 import DashboardPage from '../pages/DashboardPage';
 import ProtectedRoute from './ProtectedRoute';
-
+import AmlCheckPage from '../pages/AmlCheckPage';
 export default function AppRouter() {
   return (
     <Routes>
@@ -56,6 +56,14 @@ export default function AppRouter() {
             <LiveSelfiePage />
           </ProtectedRoute>
         } 
+      />
+      <Route
+        path="/verify/aml-check"
+        element={
+          <ProtectedRoute>
+            <AmlCheckPage />
+          </ProtectedRoute>
+        }
       />
       <Route 
         path="/verify/review" 

@@ -72,4 +72,12 @@ export const matchFace = async (userId, selfieBase64, source = "live") => {
   return response.data;
 };
 
-export default API;
+export const runAmlCheck = async (userId, name) => {
+  const response = await API.post("/aml/screen", {
+    user_id: userId,
+    name: name
+  });
+  return response.data;
+};
+
+export default API;

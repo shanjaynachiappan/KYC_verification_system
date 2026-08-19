@@ -73,7 +73,12 @@ class AMLResult(Base):
     best_score = Column(Float, default=0.0)
     matched_entries = Column(Text, nullable=True)  # JSON list of {name, score, topics, source}
     checked_at = Column(DateTime, default=datetime.utcnow)
-
+    pep_matched = Column(Boolean, default=False)
+    pep_matches = Column(Text, nullable=True)
+    adverse_media_flagged = Column(Boolean, default=False)
+    adverse_media_hits = Column(Text, nullable=True)
+    sof_risk_level = Column(String, nullable=True)
+    sof_reasoning = Column(Text, nullable=True)
     user = relationship("User", back_populates="aml_results")
 
 

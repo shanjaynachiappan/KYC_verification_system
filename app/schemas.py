@@ -85,12 +85,49 @@ class AMLMatchEntry(BaseModel):
     source_dataset: Optional[str] = None
 
 
-class AMLScreenResponse(BaseModel):
+class PEPMatchEntry(BaseModel):
+    matched_name: str
+    score: float
+    position: Optional[str] = None
+    country: Optional[str] = None
+    category: Optional[str] = None
+
+class AdverseMediaHit(BaseModel):
+    matched_name: str
+    score: float
+    headline: str
+    category: str
+    source: str
+    published_at: str
+
+class SanctionsResult(BaseModel):
     matched: bool
     best_score: float
     matches: List[AMLMatchEntry]
-    checked_at: datetime
 
+class PEPResult(BaseModel):
+    matched: bool
+    best_score: float
+    matches: List[PEPMatchEntry]
+
+class AdverseMediaResult(BaseModel):
+    flagged: bool
+    best_score: float
+    hits: List[AdverseMediaHit]
+
+class SourceOfFundsResult(BaseModel):
+    risk_level: str
+    declared_income_band: str
+    declared_source: str
+    reasoning: str
+
+class AMLScreenResponse(BaseModel):
+    sanctions: SanctionsResult
+    pep: PEPResult
+    adverse_media: AdverseMediaResult
+    source_of_funds: SourceOfFundsResult
+    overall_flagged: bool
+    checked_at: datetime
 
 # ---------- Orchestrator status ----------
 class StatusResponse(BaseModel):

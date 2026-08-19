@@ -3,7 +3,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
+    pep_csv_path: str = "./data/pep_list.csv"
+    pep_match_threshold: int = 85
+    adverse_media_json_path: str = "./data/adverse_media.json"
+    adverse_media_match_threshold: int = 80
     # Setu -- shared across all products under one KYC account
     setu_client_id: str = "changeme"
     setu_client_secret: str = "changeme"

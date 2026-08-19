@@ -309,7 +309,7 @@ export default function LiveSelfiePage() {
   };
 
   const handleContinueNext = () => {
-    navigate('/verification-workflow');
+    navigate('/verify/aml-check');
   };
 
   return (
