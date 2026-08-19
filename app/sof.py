@@ -1,60 +1,59 @@
 """
-Source of Funds (SOF) risk assessment -- SYNTHETIC simulation.
+Source of Funds (SOF) risk assessment.
 
-A real SOF check normally comes from a declared-income questionnaire plus
-bank-statement / income-proof analysis. This demo has no such intake step,
-so we deterministically *simulate* a declared income profile from the
-user_id (same user_id always produces the same synthetic profile, so
-repeated screenings in one demo session stay consistent) and run a small
-rule-based risk model over it.
+Scores the applicant's OWN declared income band and source-of-funds
+category (collected via a short form on the AML check screen -- see
+AmlCheckPage.jsx) against a small rule-based risk model.
 
-Swap _seeded_value()/assess_source_of_funds() for a real questionnaire +
-bank-statement/income-proof pipeline before any production use.
+This does not verify the declaration against payslips/bank statements --
+that would be a further production step (e.g. bank-statement analysis or
+payslip OCR/cross-check). What it does do is use real applicant input
+rather than a placeholder value, so the risk_level below reflects what the
+person actually told us.
+
+INCOME_BANDS_ORDER and SOURCE_RISK must stay in sync with the dropdown
+options in AmlCheckPage.jsx -- if you add/rename an option on the frontend,
+mirror it here.
 """
-import hashlib
 
-INCOME_BANDS = [
+# Risk assigned to each source-of-funds category the applicant can declare.
+SOURCE_RISK = {
+    "Salaried employment": "low",
+    "Business income (registered entity)": "low",
+    "Freelance / consulting income": "medium",
+    "Property sale proceeds": "medium",
+    "Inheritance / gift": "medium",
+    "Overseas remittance": "medium",
+    "Cash-intensive trade business": "high",
+}
+
+# Income bands in ascending order -- used to detect "high income + risky source".
+INCOME_BANDS_ORDER = [
     "Below ₹5L/yr",
-    "₹5L\u201315L/yr",
-    "₹15L\u201350L/yr",
-    "₹50L\u20131Cr/yr",
+    "₹5L–15L/yr",
+    "₹15L–50L/yr",
+    "₹50L–1Cr/yr",
     "Above ₹1Cr/yr",
 ]
 
-# (label, base risk)
-SOURCE_CATEGORIES = [
-    ("Salaried employment", "low"),
-    ("Business income (registered entity)", "low"),
-    ("Freelance / consulting income", "medium"),
-    ("Property sale proceeds", "medium"),
-    ("Cash-intensive trade business", "high"),
-    ("Inheritance / gift", "medium"),
-    ("Overseas remittance", "medium"),
-]
 
-
-def _seeded_value(seed: str, modulo: int) -> int:
-    """Deterministic pseudo-random index in [0, modulo) derived from `seed`."""
-    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
-    return int(digest, 16) % modulo
-
-
-def assess_source_of_funds(user_id: str, name: str) -> dict:
+def assess_source_of_funds(declared_income_band: str, declared_source: str) -> dict:
     """
-    Simulates a declared source-of-funds profile for `user_id` and scores it.
+    Scores the applicant's declared income band + source of funds.
     Returns {"risk_level": "low"|"medium"|"high", "declared_income_band": str,
              "declared_source": str, "reasoning": str}
     """
-    income_idx = _seeded_value(f"{user_id}:income", len(INCOME_BANDS))
-    source_idx = _seeded_value(f"{user_id}:source", len(SOURCE_CATEGORIES))
-
-    income_band = INCOME_BANDS[income_idx]
-    source_label, base_risk = SOURCE_CATEGORIES[source_idx]
+    base_risk = SOURCE_RISK.get(declared_source, "medium")
+    income_idx = (
+        INCOME_BANDS_ORDER.index(declared_income_band)
+        if declared_income_band in INCOME_BANDS_ORDER
+        else 2  # unrecognised value -> treat as mid-band rather than guessing high/low
+    )
 
     risk_level = base_risk
     reasons = [
-        f"Declared income band: {income_band}.",
-        f"Declared source of funds: {source_label}.",
+        f"Declared income band: {declared_income_band}.",
+        f"Declared source of funds: {declared_source}.",
     ]
 
     # High declared income routed through a non-salaried / non-low-risk
@@ -72,7 +71,7 @@ def assess_source_of_funds(user_id: str, name: str) -> dict:
 
     return {
         "risk_level": risk_level,
-        "declared_income_band": income_band,
-        "declared_source": source_label,
+        "declared_income_band": declared_income_band,
+        "declared_source": declared_source,
         "reasoning": " ".join(reasons),
     }

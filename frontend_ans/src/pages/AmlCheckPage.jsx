@@ -9,45 +9,81 @@ import Header from '../components/Header';
 import { runAmlCheck } from '../services/api';
 import '../styles/aml-check.css';
 
+// Must stay in sync with app/sof.py's INCOME_BANDS_ORDER / SOURCE_RISK keys.
+const INCOME_BANDS = [
+  'Below ₹5L/yr',
+  '₹5L–15L/yr',
+  '₹15L–50L/yr',
+  '₹50L–1Cr/yr',
+  'Above ₹1Cr/yr',
+];
+
+const SOURCE_OPTIONS = [
+  'Salaried employment',
+  'Business income (registered entity)',
+  'Freelance / consulting income',
+  'Property sale proceeds',
+  'Inheritance / gift',
+  'Overseas remittance',
+  'Cash-intensive trade business',
+];
+
 // Cycled while the backend call is in flight, purely cosmetic so the
-// single screen doesn't feel frozen during the ~1-2s round trip.
+// checking state doesn't feel frozen during the round trip.
 const CHECK_STEPS = [
   { icon: ShieldCheck, text: 'Screening against global sanctions lists...' },
   { icon: Users, text: 'Checking Politically Exposed Person (PEP) databases...' },
   { icon: Newspaper, text: 'Scanning adverse media & negative news sources...' },
-  { icon: Wallet, text: 'Assessing source of funds risk profile...' },
+  { icon: Wallet, text: 'Assessing declared source of funds...' },
 ];
 
 export default function AmlCheckPage() {
   const navigate = useNavigate();
   const { userId, aadhaarData, markAmlChecked, amlChecked, amlResult } = useVerification();
 
-  const [status, setStatus] = useState('checking'); // 'checking' | 'success' | 'flagged' | 'error'
+  // 'declaring' | 'checking' | 'success' | 'flagged' | 'error'
+  const [status, setStatus] = useState('declaring');
+  const [incomeBand, setIncomeBand] = useState('');
+  const [source, setSource] = useState('');
+  const [formError, setFormError] = useState('');
+
   const [result, setResult] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [stepIndex, setStepIndex] = useState(0);
   const cycleRef = useRef(null);
 
+  // If this screen is revisited after already completing the check once,
+  // just show the stored result instead of asking the applicant again.
+  useEffect(() => {
+    if (amlChecked && amlResult) {
+      setResult(amlResult);
+      const isFlagged = amlResult.sanctions?.matched || amlResult.pep?.matched ||
+        amlResult.adverse_media?.flagged || amlResult.source_of_funds?.risk_level === 'high';
+      setStatus(isFlagged ? 'flagged' : 'success');
+    }
+    return () => {
+      if (cycleRef.current) clearInterval(cycleRef.current);
+    };
+  }, []);
+
   const runCheck = async () => {
-    setStatus('checking');
-    setErrorMessage('');
-    setStepIndex(0);
-
-    cycleRef.current = setInterval(() => {
-      setStepIndex((prev) => (prev + 1) % CHECK_STEPS.length);
-    }, 900);
-
     const nameToScreen = aadhaarData?.fullName || aadhaarData?.name;
 
     if (!userId || !nameToScreen) {
-      clearInterval(cycleRef.current);
       setErrorMessage('Missing verified identity details. Please complete Aadhaar verification first.');
       setStatus('error');
       return;
     }
 
+    setStatus('checking');
+    setErrorMessage('');
+    setStepIndex(0);
+    cycleRef.current = setInterval(() => {
+      setStepIndex((prev) => (prev + 1) % CHECK_STEPS.length);
+    }, 900);
+
     try {
-      const data = await runAmlCheck(userId, nameToScreen);
+      const data = await runAmlCheck(userId, nameToScreen, incomeBand, source);
       clearInterval(cycleRef.current);
       setResult(data);
       markAmlChecked(data);
@@ -65,22 +101,15 @@ export default function AmlCheckPage() {
     }
   };
 
-  useEffect(() => {
-    // If this screen is revisited after already completing the check once,
-    // just show the stored result instead of re-running it.
-    if (amlChecked && amlResult) {
-      setResult(amlResult);
-      const isFlagged = amlResult.sanctions?.matched || amlResult.pep?.matched ||
-        amlResult.adverse_media?.flagged || amlResult.source_of_funds?.risk_level === 'high';
-      setStatus(isFlagged ? 'flagged' : 'success');
+  const handleDeclareSubmit = (e) => {
+    e.preventDefault();
+    if (!incomeBand || !source) {
+      setFormError('Please select both your income band and source of funds.');
       return;
     }
+    setFormError('');
     runCheck();
-    return () => {
-      if (cycleRef.current) clearInterval(cycleRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   const handleContinue = () => {
     navigate('/verify/review');
@@ -94,6 +123,55 @@ export default function AmlCheckPage() {
 
       <div className="aml-check-shell">
         <div className="aml-check-card">
+
+          {status === 'declaring' && (
+            <form className="aml-declare-form" onSubmit={handleDeclareSubmit}>
+              <div className="aml-icon-wrapper primary">
+                <Wallet size={26} />
+              </div>
+              <h2 className="aml-title">Declare Source of Funds</h2>
+              <p className="aml-subtext">
+                Before running your compliance check, tell us about your income so we can
+                assess source-of-funds risk accurately.
+              </p>
+
+              <label className="aml-form-label">
+                Annual income band
+                <select
+                  className="aml-form-select"
+                  value={incomeBand}
+                  onChange={(e) => setIncomeBand(e.target.value)}
+                >
+                  <option value="" disabled>Select income band</option>
+                  {INCOME_BANDS.map((band) => (
+                    <option key={band} value={band}>{band}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="aml-form-label">
+                Primary source of funds
+                <select
+                  className="aml-form-select"
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                >
+                  <option value="" disabled>Select source of funds</option>
+                  {SOURCE_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              </label>
+
+              {formError && <p className="aml-form-error">{formError}</p>}
+
+              <button type="submit" className="primary-action-btn aml-continue-btn">
+                <span>Run Compliance Check</span>
+                <ArrowRight size={18} />
+              </button>
+            </form>
+          )}
+
           {status === 'checking' && (
             <div className="aml-checking-box">
               <div className="fintech-spinner"></div>
@@ -113,9 +191,9 @@ export default function AmlCheckPage() {
               </div>
               <h2 className="aml-title">Compliance Check Failed</h2>
               <p className="aml-subtext">{errorMessage}</p>
-              <button className="primary-action-btn" onClick={runCheck}>
+              <button className="primary-action-btn" onClick={() => setStatus('declaring')}>
                 <RefreshCw size={16} />
-                <span>Retry Check</span>
+                <span>Try Again</span>
               </button>
             </div>
           )}
@@ -200,7 +278,7 @@ export default function AmlCheckPage() {
               </button>
 
               <p className="aml-fine-print">
-                All checks above run against synthetic demo data for illustration purposes only.
+                Sanctions/PEP/adverse-media checks run against synthetic demo data for illustration purposes only.
               </p>
             </div>
           )}

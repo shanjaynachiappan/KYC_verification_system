@@ -76,6 +76,9 @@ class FaceMatchResponse(BaseModel):
 class AMLScreenRequest(BaseModel):
     user_id: str
     name: str
+    declared_income_band: str
+    declared_source: str
+    
 
 
 class AMLMatchEntry(BaseModel):

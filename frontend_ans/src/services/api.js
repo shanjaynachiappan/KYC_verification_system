@@ -75,7 +75,9 @@ export const matchFace = async (userId, selfieBase64, source = "live") => {
 export const runAmlCheck = async (userId, name) => {
   const response = await API.post("/aml/screen", {
     user_id: userId,
-    name: name
+    name: name,
+    declared_income_band: declaredIncomeBand,
+    declared_source: declaredSource
   });
   return response.data;
 };

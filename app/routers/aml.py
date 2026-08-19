@@ -23,7 +23,7 @@ def screen(payload: schemas.AMLScreenRequest, db: Session = Depends(get_db)):
     sanctions_result = aml.screen_name(payload.name)
     pep_result = pep.screen_pep(payload.name)
     media_result = adverse_media.check_adverse_media(payload.name)
-    sof_result = sof.assess_source_of_funds(payload.user_id, payload.name)
+    sof_result = sof.assess_source_of_funds(payload.declared_income_band, payload.declared_source)
 
     overall_flagged = (
         sanctions_result["matched"]
