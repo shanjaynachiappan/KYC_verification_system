@@ -1,0 +1,162 @@
+/* Final Review Styles - Light Fintech Theme */
+
+.review-sections-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.overall-verified-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background-color: var(--success-light);
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius-sm);
+}
+
+.banner-check {
+  color: var(--success);
+  flex-shrink: 0;
+}
+
+.banner-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 2px 0;
+}
+
+.banner-sub {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.review-block {
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+}
+
+.block-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.block-icon {
+  color: var(--primary);
+}
+
+.block-header h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.verification-rows-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.verification-clean-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.row-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.row-check-icon {
+  color: var(--success);
+  flex-shrink: 0;
+}
+
+.v-row-title {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.v-row-desc {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.v-row-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--success);
+  background-color: var(--success-light);
+  border: 1px solid var(--success-border);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.selfie-token-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.selfie-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+}
+
+.selfie-meta strong {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.selfie-meta p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.checkboxes-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fintech-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.fintech-checkbox-label input {
+  margin-top: 3px;
+  accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
+}

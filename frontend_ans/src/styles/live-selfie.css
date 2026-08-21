@@ -1,0 +1,187 @@
+/* Live Selfie Styles - Light Fintech Theme */
+
+.selfie-capture-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.camera-frame-card {
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.camera-flash-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: #ffffff;
+  z-index: 20;
+  animation: flash 0.25s ease-out forwards;
+}
+
+@keyframes flash {
+  0% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+.camera-viewport-container {
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.oval-face-frame {
+  width: 220px;
+  height: 270px;
+  border-radius: 50%;
+  border: 3px solid var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-light);
+  position: relative;
+  overflow: hidden;
+  background-color: #000000;
+  transition: border-color 0.2s ease;
+}
+
+.oval-face-frame.scanning {
+  border-color: var(--warning);
+}
+
+.oval-face-frame.captured {
+  border-color: var(--success);
+}
+
+.selfie-video-stream,
+.selfie-canvas-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.scanning-line-sweep {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: var(--warning);
+  box-shadow: 0 0 8px var(--warning);
+  animation: sweep 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes sweep {
+  0% { top: 0%; }
+  100% { top: 96%; }
+}
+
+.camera-guidance-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-main);
+  box-shadow: var(--shadow-sm);
+}
+
+.camera-guidance-pill .sun-icon {
+  color: var(--warning);
+}
+
+/* Tips Box */
+.selfie-tips-box {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+}
+
+.selfie-tips-box h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0 0 10px 0;
+}
+
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.tips-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.tip-check {
+  color: var(--success);
+  flex-shrink: 0;
+}
+
+.camera-actions-row {
+  width: 100%;
+}
+
+.camera-actions-dual {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.secondary-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 46px;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.secondary-action-btn:hover {
+  background-color: var(--bg-hover);
+}
+
+.camera-error-box {
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.error-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--danger-light);
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px auto;
+}

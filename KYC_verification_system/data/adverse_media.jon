@@ -1,0 +1,72 @@
+[
+  {
+    "name": "Karan Vohra",
+    "headline": "Local businessman named in shell-company fraud probe",
+    "category": "fraud",
+    "source": "Synthetic Times (demo data)",
+    "published_at": "2025-03-14"
+  },
+  {
+    "name": "Igor Volkov",
+    "headline": "Advisor linked to sanctions-evasion network, report claims",
+    "category": "sanctions evasion",
+    "source": "Synthetic Chronicle (demo data)",
+    "published_at": "2024-11-02"
+  },
+  {
+    "name": "Devendra Kulkarni",
+    "headline": "State finance office official questioned over fund diversion",
+    "category": "corruption",
+    "source": "Synthetic Herald (demo data)",
+    "published_at": "2025-06-21"
+  },
+  {
+    "name": "Amara Chukwu",
+    "headline": "Governor's office faces inquiry over undisclosed accounts",
+    "category": "money laundering",
+    "source": "Synthetic Post (demo data)",
+    "published_at": "2025-01-09"
+  },
+  {
+    "name": "Rahul Bose",
+    "headline": "Commissioner's aide fined for unreported tax filings",
+    "category": "tax evasion",
+    "source": "Synthetic Daily (demo data)",
+    "published_at": "2023-09-30"
+  },
+  {
+    "name": "Thomas Mathew",
+    "headline": "Bank chairman felicitated at regional business awards",
+    "category": "local news",
+    "source": "Synthetic Business Weekly (demo data)",
+    "published_at": "2025-02-18"
+  },
+  {
+    "name": "Sunita Reddy",
+    "headline": "Chief Minister inaugurates new highway project",
+    "category": "local news",
+    "source": "Synthetic Gazette (demo data)",
+    "published_at": "2025-04-05"
+  },
+  {
+    "name": "Grace Mwangi",
+    "headline": "Cabinet secretary launches community education fund",
+    "category": "local news",
+    "source": "Synthetic Tribune (demo data)",
+    "published_at": "2024-12-11"
+  },
+  {
+    "name": "Nadia Rahman",
+    "headline": "Trade minister quoted at regional commerce summit",
+    "category": "local news",
+    "source": "Synthetic Journal (demo data)",
+    "published_at": "2025-05-27"
+  },
+  {
+    "name": "Manpreet Bajwa",
+    "headline": "Police chief honored for community outreach program",
+    "category": "local news",
+    "source": "Synthetic Reporter (demo data)",
+    "published_at": "2024-08-19"
+  }
+]
