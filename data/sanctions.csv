@@ -1,0 +1,13 @@
+id,schema,name,aliases,birth_date,countries,topics,datasets
+sy-0001,Person,Nadeem Farooqi,N. Farooqi,1978-04-11,Pakistan,sanction,synthetic-demo-list
+sy-0002,Person,Boris Antonov,B. Antonov,1965-09-02,Russia,sanction.linked,synthetic-demo-list
+sy-0003,Person,Chen Liang Wu,C.L. Wu,1971-01-23,China,sanction,synthetic-demo-list
+sy-0004,Person,Marcus Delgado,M. Delgado,1980-06-30,Venezuela,sanction,synthetic-demo-list
+sy-0005,Person,Hassan Al-Rashid,H. Al-Rashid,1969-12-15,Syria,sanction,synthetic-demo-list
+sy-0006,Organization,Vostok Trading Group,Vostok Trade Grp,,Russia,sanction,synthetic-demo-list
+sy-0007,Person,Igor Volkov,I. Volkov,1974-03-08,Russia,sanction.linked,synthetic-demo-list
+sy-0008,Person,Tomas Novak,T. Novak,1983-07-19,Belarus,sanction,synthetic-demo-list
+sy-0009,Organization,Crimson Star Shipping,Crimson Star,,North Korea,sanction,synthetic-demo-list
+sy-0010,Person,Amina Bello,A. Bello,1976-02-27,Nigeria,sanction.linked,synthetic-demo-list
+sy-0011,Person,Karan Vohra,K. Vohra,1985-10-05,India,sanction.linked,synthetic-demo-list
+sy-0012,Person,Dmitri Sokolov,D. Sokolov,1972-05-14,Russia,sanction,synthetic-demo-list
