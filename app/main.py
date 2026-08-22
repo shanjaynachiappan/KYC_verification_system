@@ -7,7 +7,8 @@ from app.routers import passport, payslip, deepfake, ai_generated
 
 from app.services.deepfake.model_loader import load_model as load_deepfake_model
 from app.services.ai_generated.model_loader import load_model as load_ai_generated_model
-
+from app.routers import agent
+...
 # Creates kyc_demo.db and all tables on first run. Fine for a demo;
 # in a real project you'd use Alembic migrations instead.
 Base.metadata.create_all(bind=engine)
@@ -22,6 +23,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.include_router(agent.router)
 # Wide open for hackathon purposes -- lock this down before any real deployment
 app.add_middleware(
     CORSMiddleware,

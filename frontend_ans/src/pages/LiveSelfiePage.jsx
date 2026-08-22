@@ -258,7 +258,7 @@ export default function LiveSelfiePage() {
         console.log('[FACE MATCH] image data URL prefix:', base64DataUrl.substring(0, 30));
         console.log('[FACE MATCH] base64 length:', base64DataUrl.length);
 
-        faceRes = await matchFace(userId, base64DataUrl, captureMethod);
+        faceRes = await matchFace(userId, base64DataUrl, captureMethod, deepfakeRes.prediction, deepfakeRes.confidence);
       } catch (fmErr) {
         console.error('Face Match API Error:', fmErr);
         const detailMsg = fmErr.response?.data?.detail || fmErr.response?.data?.message || 'Face match failed. Aadhaar photo baseline missing.';
@@ -282,6 +282,7 @@ export default function LiveSelfiePage() {
         deepfake_detected: false,
         confidenceScore: Math.round((faceRes.similarity_score || 0.95) * 100),
         capturedSelfieUrl: capturedUrl,
+        review_required: faceRes.review_required,
         similarity_score: faceRes.similarity_score,
         verificationMethod: captureMethod
       };

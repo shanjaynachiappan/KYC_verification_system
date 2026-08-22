@@ -39,7 +39,7 @@ const CHECK_STEPS = [
 
 export default function AmlCheckPage() {
   const navigate = useNavigate();
-  const { userId, aadhaarData, markAmlChecked, amlChecked, amlResult } = useVerification();
+  const { userId, aadhaarData, markAmlChecked, amlChecked, amlResult , selfieData} = useVerification();
 
   // 'declaring' | 'checking' | 'success' | 'flagged' | 'error'
   const [status, setStatus] = useState('declaring');
@@ -112,9 +112,12 @@ export default function AmlCheckPage() {
   };
 
   const handleContinue = () => {
-    navigate('/verify/review');
+    if (selfieData?.reviewRequired) {
+      navigate('/verify/agent-kyc');
+    } else {
+      navigate('/verify/review');
+    }
   };
-
   const CurrentIcon = CHECK_STEPS[stepIndex].icon;
 
   return (

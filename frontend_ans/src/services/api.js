@@ -63,13 +63,51 @@ export const detectDeepfake = async (imageBlob, source = "live") => {
 };
 
 // Face Matching against Aadhaar Photo
-export const matchFace = async (userId, selfieBase64, source = "live") => {
+export const matchFace = async (userId, selfieBase64, source = "live", deepfakePrediction = null, deepfakeConfidence = null) => {
   const response = await API.post("/face/match", {
     user_id: userId,
     selfie_base64: selfieBase64,
-    source: source
+    source: source,
+    deepfake_prediction: deepfakePrediction,
+    deepfake_confidence: deepfakeConfidence
   });
   return response.data;
+};
+
+export const createAgentSession = async (userId, reason) => {
+  const response = await API.post("/agent/sessions", { user_id: userId, reason });
+  return response.data;
+};
+
+export const getAgentSession = async (sessionId) => {
+  const response = await API.get(`/agent/sessions/${sessionId}`);
+  return response.data;
+};
+
+export const listAgentSessions = async (statusFilter = null) => {
+  const response = await API.get("/agent/sessions", { params: statusFilter ? { status_filter: statusFilter } : {} });
+  return response.data;
+};
+
+export const claimAgentSession = async (sessionId, agentName) => {
+  const response = await API.post(`/agent/sessions/${sessionId}/claim`, { agent_name: agentName });
+  return response.data;
+};
+
+export const submitAgentDecision = async (sessionId, decision, notes) => {
+  const response = await API.post(`/agent/sessions/${sessionId}/decision`, { decision, notes });
+  return response.data;
+};
+
+export const getAgentMessages = async (sessionId) => {
+  const response = await API.get(`/agent/sessions/${sessionId}/messages`);
+  return response.data;
+};
+
+export const buildAgentWsUrl = (sessionId, role) => {
+  const httpBase = API.defaults.baseURL || "http://localhost:8000";
+  const wsBase = httpBase.replace(/^http/, "ws");
+  return `${wsBase}/agent/ws/${sessionId}/${role}`;
 };
 
 export const runAmlCheck = async (userId, name) => {

@@ -1,0 +1,240 @@
+/* Agent-Led KYC -- applicant screen + agent console */
+
+.agent-shell {
+  display: flex;
+  justify-content: center;
+  padding: 48px 20px;
+}
+
+.agent-card {
+  width: 100%;
+  max-width: 640px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 28px;
+}
+
+.agent-header {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.agent-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.agent-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 4px;
+}
+
+.agent-subtext {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.agent-status-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.agent-status-strip.waiting {
+  background-color: var(--warning-light);
+  color: var(--warning);
+}
+
+.agent-status-strip.active {
+  background-color: var(--success-light);
+  color: var(--success-hover);
+}
+
+.agent-status-strip.approved {
+  background-color: var(--success-light);
+  color: var(--success-hover);
+}
+
+.agent-status-strip.rejected {
+  background-color: var(--danger-light);
+  color: var(--danger);
+}
+
+.agent-chat-window {
+  height: 320px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  background-color: var(--bg-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.agent-chat-bubble {
+  max-width: 78%;
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 0.87rem;
+  line-height: 1.4;
+}
+
+.agent-chat-bubble.mine {
+  align-self: flex-end;
+  background-color: var(--primary);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.agent-chat-bubble.theirs {
+  align-self: flex-start;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-bottom-left-radius: 4px;
+}
+
+.agent-bubble-sender {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  opacity: 0.75;
+  margin-bottom: 2px;
+}
+
+.agent-chat-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.agent-chat-input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-surface);
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+
+.agent-send-btn {
+  padding: 10px 14px;
+}
+
+.agent-continue-btn,
+.agent-claim-btn {
+  width: 100%;
+  justify-content: center;
+  margin-top: 14px;
+}
+
+/* Agent console layout */
+.agent-console-shell {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  padding: 32px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+@media (max-width: 760px) {
+  .agent-console-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+.agent-queue-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+
+.agent-queue-panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  margin-bottom: 12px;
+  color: var(--text-main);
+}
+
+.agent-queue-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+
+.agent-console-chat {
+  max-width: none;
+}
+
+.agent-decision-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.agent-approve-btn {
+  background-color: var(--success);
+  flex: 1;
+  justify-content: center;
+}
+
+.agent-reject-btn {
+  background-color: var(--danger);
+  flex: 1;
+  justify-content: center;
+}
+
+.agent-video-panel {
+  height: 320px;
+  margin-bottom: 14px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: #0f0f0f;
+}
+
+.agent-video-container {
+  width: 100%;
+  height: 100%;
+}
+
+.agent-video-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  background-color: var(--bg-subtle);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+}

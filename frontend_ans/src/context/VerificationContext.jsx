@@ -153,6 +153,7 @@ export function VerificationProvider({ children }) {
         livenessPassed: true,
         deepfakePassed: !data.deepfake_detected,
         faceMatched: data.face_match !== false,
+        reviewRequired: data.review_required || false,
         capturedSelfieUrl: data.capturedSelfieUrl || null,
         verificationMethod: data.verificationMethod || 'live',
         verificationTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -190,8 +191,10 @@ export function VerificationProvider({ children }) {
   const cross_check_result = crossCheckResult;
 
   const selfieVerified = verificationData.selfieVerified;
+  const selfieData = verificationData.selfieData;
   const reviewReady = verificationData.reviewReady;
-
+  const amlChecked = verificationData.amlChecked;
+  const amlResult = verificationData.amlResult;
   const completedStepsList = [aadhaarVerified, panVerified, selfieVerified, reviewReady];
   const completedSteps = completedStepsList.filter(Boolean).length;
   const totalSteps = 4;
@@ -238,7 +241,10 @@ export function VerificationProvider({ children }) {
       crossCheckResult,
       cross_check_result,
       selfieVerified,
+      selfieData,
       reviewReady,
+      amlChecked,
+      amlResult,
       completedSteps,
       totalSteps,
       percentage,
@@ -250,7 +256,8 @@ export function VerificationProvider({ children }) {
       setCrossCheckResult,
       markSelfieVerified,
       setReviewReadyState,
-      resetVerificationState
+      resetVerificationState,
+      markAmlChecked
     }}>
       {children}
     </VerificationContext.Provider>

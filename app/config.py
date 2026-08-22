@@ -24,6 +24,14 @@ class Settings(BaseSettings):
     # AML
     opensanctions_csv_path: str = "./data/sanctions.csv"
     aml_match_threshold: int = 85
+        # Daily.co video (agent-led KYC)
+    daily_api_key: str = "changeme"
+    daily_api_base_url: str = "https://api.daily.co/v1"
+
+    # Agent-led KYC borderline thresholds
+    face_match_confident_pct: float = 85.0
+    face_match_reject_pct: float = 40.0
+    deepfake_confident_pct: float = 85.0
 
 
 settings = Settings()

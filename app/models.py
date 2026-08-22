@@ -99,5 +99,27 @@ class VerificationStatus(Base):
     final_status = Column(String, nullable=True)  # verified / flagged / pending
     selfie_base64 = Column(Text, nullable=True)  # last submitted selfie -- kept for officer review UI
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
+    review_required = Column(Boolean, default=False)
     user = relationship("User", back_populates="status")
+
+class AgentSession(Base):
+    __tablename__ = "agent_sessions"
+    id = Column(String, primary_key=True, default=gen_id)
+    user_id = Column(String, ForeignKey("users.id"))
+    reason = Column(String)
+    video_room_url = Column(String, nullable=True)
+    status = Column(String, default="waiting")
+    agent_name = Column(String, nullable=True)
+    decision = Column(String, nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class AgentChatMessage(Base):
+    __tablename__ = "agent_chat_messages"
+    id = Column(String, primary_key=True, default=gen_id)
+    session_id = Column(String, ForeignKey("agent_sessions.id"))
+    sender_role = Column(String)
+    message = Column(Text)
+    sent_at = Column(DateTime, default=datetime.utcnow)

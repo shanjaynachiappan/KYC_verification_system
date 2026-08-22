@@ -61,8 +61,10 @@ class CrossCheckResponse(BaseModel):
 # ---------- Face match: selfie vs Aadhaar photo fetched from DigiLocker ----------
 class FaceMatchRequest(BaseModel):
     user_id: str
-    selfie_base64: str  # raw base64 image data from the browser camera capture
+    selfie_base64: str
     source: Optional[str] = "live"
+    deepfake_prediction: Optional[str] = None   # "Real" | "Fake", from /deepfake/image
+    deepfake_confidence: Optional[float] = None # 0-100, from /deepfake/image
 
 
 class FaceMatchResponse(BaseModel):
@@ -70,8 +72,7 @@ class FaceMatchResponse(BaseModel):
     similarity_score: float
     quality_issue: Optional[str] = None
     checked_at: datetime
-
-
+    review_required: bool = False
 # ---------- AML ----------
 class AMLScreenRequest(BaseModel):
     user_id: str

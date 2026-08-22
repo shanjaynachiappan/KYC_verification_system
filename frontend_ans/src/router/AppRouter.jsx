@@ -12,6 +12,9 @@ import DocumentVerificationPage from '../pages/DocumentVerificationPage';
 import DashboardPage from '../pages/DashboardPage';
 import ProtectedRoute from './ProtectedRoute';
 import AmlCheckPage from '../pages/AmlCheckPage';
+import AgentKycPage from '../pages/AgentKycPage';
+import AgentConsolePage from '../pages/AgentConsolePage';
+
 export default function AppRouter() {
   return (
     <Routes>
@@ -81,6 +84,15 @@ export default function AppRouter() {
           </ProtectedRoute>
         } 
       />
+      <Route
+        path="/verify/agent-kyc"
+        element={
+          <ProtectedRoute>
+            <AgentKycPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/agent/console" element={<AgentConsolePage />} />
       <Route 
         path="/dashboard" 
         element={

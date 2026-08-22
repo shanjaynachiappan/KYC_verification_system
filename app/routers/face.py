@@ -2,7 +2,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
+from app.config import settings
 from app.database import get_db
 from app import models, schemas, face_match, decisioning
 
@@ -50,13 +50,24 @@ def match(payload: schemas.FaceMatchRequest, db: Session = Depends(get_db)):
         status_row.state = "face_matched" if result["matched"] else "face_match_failed"
         status_row.face_match_passed = result["matched"]
         status_row.selfie_base64 = payload.selfie_base64
+        status_row.review_required = review_required
         decisioning.recompute_final_status(status_row)
 
     db.commit()
+    result = face_match.match_faces(payload.selfie_base64, aadhaar_doc.photo_base64)
+    similarity_pct = result["similarity_score"] * 100
 
+    face_confident = similarity_pct >= settings.face_match_confident_pct
+    face_reject = similarity_pct < settings.face_match_reject_pct
+    deepfake_confident = (
+        payload.deepfake_confidence is not None and payload.deepfake_confidence >= settings.deepfake_confident_pct
+    )
+    review_required = not face_reject and not (face_confident and deepfake_confident)
     return schemas.FaceMatchResponse(
         matched=result["matched"],
         similarity_score=result["similarity_score"],
         quality_issue=result["quality_issue"],
         checked_at=datetime.utcnow(),
+        review_required=review_required
     )
+    

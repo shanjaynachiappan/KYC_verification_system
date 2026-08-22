@@ -1,7 +1,9 @@
-# Member B — eKYC / AML Service
+# Member B — eKYC / AML / Agent-Led KYC Service
 
-Covers: Setu DigiLocker integration, AML/sanctions screening, database, cross-check logic,
-orchestrator status endpoint. Runs as its own FastAPI service on port 8000.
+Covers: Setu DigiLocker integration, AML/compliance screening (sanctions, PEP, adverse media,
+source of funds), face-match + deepfake screening, agent-led KYC for borderline cases (live chat
++ video), database, cross-check logic, orchestrator status endpoint. Runs as its own FastAPI
+service on port 8000.
 
 ---
 
@@ -11,30 +13,45 @@ orchestrator status endpoint. Runs as its own FastAPI service on port 8000.
 member-b-ekyc-aml/
 ├── app/
 │   ├── __init__.py
-│   ├── main.py              # FastAPI app, wires everything together
-│   ├── config.py            # reads .env
-│   ├── database.py          # SQLAlchemy engine/session
-│   ├── models.py            # DB tables: User, DigilockerRequest, Document, AMLResult, VerificationStatus
-│   ├── schemas.py           # Pydantic request/response shapes
-│   ├── digilocker.py        # Setu DigiLocker API client
-│   ├── pan.py                # Setu PAN verification API client
-│   ├── face_match.py         # OpenCV quality checks + DeepFace(ArcFace) selfie-vs-Aadhaar-photo match
-│   ├── decisioning.py        # Combines cross-check + face-match + AML into one final_status
-│   ├── aml.py                # OpenSanctions loader + RapidFuzz matching
+│   ├── main.py                # FastAPI app, wires everything together
+│   ├── config.py               # reads .env
+│   ├── database.py             # SQLAlchemy engine/session
+│   ├── models.py                # DB tables: User, DigilockerRequest, Document, AMLResult,
+│   │                             # VerificationStatus, AgentSession, AgentChatMessage
+│   ├── schemas.py                # Pydantic request/response shapes (core eKYC + face + AML)
+│   ├── schemas_agent.py          # Pydantic shapes for the agent-led KYC flow
+│   ├── digilocker.py             # Setu DigiLocker API client
+│   ├── pan.py                     # Setu PAN verification API client
+│   ├── face_match.py              # OpenCV quality checks + DeepFace(ArcFace) selfie-vs-Aadhaar match
+│   ├── decisioning.py             # Combines cross-check + face-match + AML into one final_status
+│   ├── aml.py                     # Sanctions loader + RapidFuzz matching
+│   ├── pep.py                     # PEP (Politically Exposed Person) screening — synthetic dataset
+│   ├── adverse_media.py           # Adverse media / negative-news screening — synthetic dataset
+│   ├── sof.py                     # Source of Funds risk scoring from applicant's own declaration
+│   ├── ws_manager.py              # In-memory WebSocket room manager for agent-led KYC chat
+│   ├── video.py                   # Daily.co REST wrapper — creates the video room per agent session
 │   └── routers/
 │       ├── __init__.py
-│       ├── users.py         # POST /users/  -> start a session
-│       ├── ekyc.py          # DigiLocker init/status/fetch + cross-check (Aadhaar name vs PAN name)
-│       ├── pan.py           # POST /pan/verify
-│       ├── face.py          # POST /face/match
-│       ├── aml.py           # POST /aml/screen
-│       └── status.py        # GET /status/{user_id}, GET /status/
+│       ├── users.py            # POST /users/  -> start a session
+│       ├── ekyc.py             # DigiLocker init/status/fetch + cross-check (Aadhaar name vs PAN name)
+│       ├── pan.py               # POST /pan/verify
+│       ├── face.py              # POST /face/match  (includes borderline-score → review_required)
+│       ├── deepfake.py           # POST /deepfake/image
+│       ├── aml.py                 # POST /aml/screen  (sanctions + PEP + adverse media + SOF)
+│       ├── agent.py               # Agent-led KYC session lifecycle + live chat WebSocket
+│       └── status.py               # GET /status/{user_id}, GET /status/
 ├── data/
-│   └── sanctions.csv        # <- you put the downloaded OpenSanctions file here
+│   ├── sanctions.csv           # synthetic demo sanctions list (swap for a real OpenSanctions export)
+│   ├── pep_list.csv             # synthetic demo PEP dataset
+│   └── adverse_media.json        # synthetic demo adverse-media dataset
 ├── requirements.txt
 ├── .env.example
 └── README.md
 ```
+
+Frontend-side additions (in `frontend_ans/src/`): `pages/AmlCheckPage.jsx`,
+`pages/AgentKycPage.jsx`, `pages/AgentConsolePage.jsx`, `components/VideoCallFrame.jsx`,
+`styles/aml-check.css`, `styles/agent-kyc.css`.
 
 ---
 
@@ -47,7 +64,17 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 cp .env.example .env
-# now edit .env and fill in the Setu sandbox credentials (see step 3)
+# now edit .env and fill in:
+#   - Setu sandbox credentials (see step 3)
+#   - DAILY_API_KEY (see step 5 — video calls for agent-led KYC)
+```
+
+Frontend also needs the Daily.co video SDK:
+
+```bash
+cd frontend_ans
+npm install @daily-co/daily-js
+npm install
 ```
 
 **Heads up on install size/time**: `deepface` pulls in `tensorflow` as a dependency, which is a
@@ -59,6 +86,11 @@ first call will be slow (10-30s), every call after is fast.
 **Known gotcha**: `opencv-python` version 5.x removed/changed the classic `cv2.CascadeClassifier`
 API used for face detection in `face_match.py`. `requirements.txt` pins `opencv-python==4.10.0.84`
 specifically for this reason — don't let pip auto-upgrade it.
+
+**After pulling schema changes** (new `AgentSession`/`AgentChatMessage` tables, new columns on
+`AMLResult`/`VerificationStatus`): delete `kyc_demo.db` and restart uvicorn so it regenerates with
+the new schema — `Base.metadata.create_all()` only creates missing tables, it doesn't alter
+existing ones.
 
 ---
 
@@ -84,21 +116,78 @@ Update it in `.env` before demo day, since ngrok URLs change every restart on th
 
 ---
 
-## 4. Get real AML/sanctions data (OpenSanctions)
+## 4. AML / compliance screening — sanctions, PEP, adverse media, source of funds
 
+`POST /aml/screen` runs after liveness/face-match and covers four checks in one call:
+
+| Check | What it does | Data source |
+|---|---|---|
+| **Sanctions** | Fuzzy-matches the verified name against a watchlist (RapidFuzz `token_sort_ratio`) | `data/sanctions.csv` — **synthetic**, swap for a real OpenSanctions export |
+| **PEP** | Checks if the name matches a politically exposed person or close associate | `data/pep_list.csv` — **synthetic**, swap for a real PEP data provider |
+| **Adverse media** | Checks the name against negative-news categories (fraud, money laundering, corruption, etc.) | `data/adverse_media.json` — **synthetic**, swap for a real news/media API |
+| **Source of Funds (SOF)** | Applicant declares an income band + source of funds on the AML check screen; scored by a rule-based model in `app/sof.py` | Real applicant input — not simulated |
+
+**None of the sanctions/PEP/adverse-media names are real people or real news stories** — they exist
+purely so the matching engine (which mirrors how production tools like OpenSanctions/ComplyAdvantage
+work) has something to run against. Swap the three data files for real provider feeds before any
+production use — the matching code itself doesn't need to change.
+
+Any single hit (sanctions/PEP/adverse-media match, or SOF risk = high) routes the applicant's
+`final_status` to `pending` rather than an outright reject — matching real-world Enhanced Due
+Diligence (EDD) practice, where only a hard sanctions match is close to an automatic block.
+
+### Getting a real sanctions dataset (optional upgrade)
 1. Go to https://www.opensanctions.org/datasets/ and open the **"default"** consolidated dataset
-2. Download the **simple CSV / "targets.simple.csv"** export (free, no signup required for this format)
-3. Save it as `data/sanctions.csv` in this project
-4. If the column names in the file you download don't match `name` / `topics` / `datasets`,
-   open `app/aml.py` and adjust the `COLUMN_MAP` dict at the top to match — that's the only
-   place you'd need to touch
-5. Until you've downloaded the real file, `app/aml.py` automatically falls back to a tiny
-   3-name sample list so the rest of the team isn't blocked — you'll see a `source: "sample-fallback"`
-   in results, which tells you it's not using the real dataset yet
+2. Download the **simple CSV / "targets.simple.csv"** export (free, no signup required)
+3. Save it as `data/sanctions.csv`, replacing the synthetic version
+4. If column names don't match what `app/aml.py` expects, adjust its `COLUMN_MAP` dict
 
 ---
 
-## 5. Run it
+## 5. Agent-led KYC — borderline face/liveness scores
+
+Face-match and deepfake/liveness checks aren't just pass/fail — they carry a confidence score.
+`/face/match` computes a `review_required` flag from two signals:
+
+| Signal | Confident pass | Confident fail | Borderline |
+|---|---|---|---|
+| Face similarity (DeepFace/ArcFace) | ≥ 85% | < 40% | in between |
+| Deepfake/liveness confidence | ≥ 85% (either label) | — | < 85% |
+
+- **Confidently failing** → unchanged hard reject (retake selfie)
+- **Confidently passing both** → unchanged auto-pass, straight to Final Review
+- **Borderline** → `review_required = true` → after the AML check, the applicant is routed to
+  `/verify/agent-kyc` instead of Final Review, for live human review
+
+### How the live review works
+1. Applicant lands on the Agent-Led KYC screen → `POST /agent/sessions` creates a session
+   (`waiting`) and a Daily.co video room
+2. A human agent, on a separate `/agent/console` screen, sees it in the waiting queue and claims it
+   (`in_progress`) — this joins them into the same video room
+3. Both sides get a live **video call** (via Daily.co's embeddable call UI) plus a **text chat**
+   over WebSocket (`/agent/ws/{session_id}/{role}`) — every chat message is persisted
+   (`AgentChatMessage`) as part of the audit trail
+4. The agent submits **Approve** or **Reject** (`POST /agent/sessions/{id}/decision`) — this sets
+   the session to `completed` and updates the applicant's `VerificationStatus.final_status`
+   directly
+5. The applicant's screen picks up the decision (WebSocket + a 4s poll as a fallback) and unlocks
+   "Continue to Final Review"
+
+### Setting up video (Daily.co)
+1. Sign up free at https://dashboard.daily.co/ (no card required)
+2. Get an API key at https://dashboard.daily.co/developers
+3. Set `DAILY_API_KEY` in `.env`
+
+If `DAILY_API_KEY` is left unset, `app/video.py` fails soft — the chat-only flow still works, the
+video panel just shows a "not configured" placeholder instead of erroring out.
+
+**Known limitation — no agent authentication.** `/agent/console` has no login; anyone with the URL
+can act as an agent. Fine for a demo (open it in a second tab to play both roles), but this needs
+real agent auth (separate login, role check, IP allowlist) before any production deployment.
+
+---
+
+## 6. Run it
 
 ```bash
 uvicorn app.main:app --reload --port 8000
@@ -106,13 +195,14 @@ uvicorn app.main:app --reload --port 8000
 
 - API docs (Swagger, auto-generated): http://localhost:8000/docs
 - Health check: http://localhost:8000/health
+- Agent console (open in a second browser tab during a demo): http://localhost:5173/agent/console
 
 Use `/docs` to manually test every endpoint below without needing the frontend at all —
 useful for demoing your part independently before Member C wires it up.
 
 ---
 
-## 6. API endpoints (this is the contract Member C's frontend calls)
+## 7. API endpoints (this is the contract Member C's frontend calls)
 
 | Method | Path | Purpose |
 |---|---|---|
@@ -122,41 +212,47 @@ useful for demoing your part independently before Member C wires it up.
 | POST | `/ekyc/digilocker/fetch-aadhaar/{request_id}` | Pulls real Aadhaar data (name/DOB/address/photo) once authenticated |
 | POST | `/ekyc/cross-check` | Compares Member A's OCR name vs DigiLocker name |
 | POST | `/pan/verify` | Verifies a PAN number via Setu/NSDL, returns full_name/category |
-| POST | `/face/match` | Compares live selfie against the Aadhaar photo (from DigiLocker), not any uploaded doc |
-| POST | `/aml/screen` | Screens a name against sanctions/PEP data |
+| POST | `/deepfake/image` | Checks selfie for AI-generated/manipulated content |
+| POST | `/face/match` | Compares live selfie against the Aadhaar photo; returns `review_required` for borderline scores |
+| POST | `/aml/screen` | Sanctions + PEP + adverse media + source-of-funds screening in one call |
+| POST | `/agent/sessions` | Creates (or resumes) an agent-led KYC session + video room |
+| GET | `/agent/sessions?status_filter=waiting` | Agent console's queue |
+| GET | `/agent/sessions/{session_id}` | Poll a session's current status/decision |
+| POST | `/agent/sessions/{session_id}/claim` | Agent claims a waiting session |
+| POST | `/agent/sessions/{session_id}/decision` | Agent submits approve/reject + notes |
+| GET | `/agent/sessions/{session_id}/messages` | Chat history for a session |
+| WS | `/agent/ws/{session_id}/{role}` | Live chat channel — `role` is `applicant` or `agent` |
 | GET | `/status/{user_id}` | Current orchestrator state + final verdict |
 | GET | `/status/` | List of all demo users (for Admin Overview screen) |
 
 ---
 
-## 7. Final status decisioning (combined, order-independent)
+## 8. Final status decisioning (combined, order-independent)
 
-`final_status` is no longer AML-only — it's computed from all three checks together by
-`app/decisioning.py`, called after each check updates its own field, so it works correctly
-regardless of which check finishes first:
+`final_status` is computed from all checks together by `app/decisioning.py`, called after each
+check updates its own field, so it works correctly regardless of which check finishes first:
 
 | Condition | Result |
 |---|---|
 | Aadhaar name vs PAN name mismatch | `flagged` immediately, even if other checks haven't run |
-| Selfie doesn't match Aadhaar photo | `flagged` immediately, even if other checks haven't run |
-| Cross-check + face-match both pass, AML hits a sanctions/PEP entry | `pending` — needs human review, not auto-rejected (matches how PEP/adverse-media hits are meant to be handled — see AML row) |
-| All three checks pass clean | `verified` |
-| Not all three checks have run yet | `final_status` stays `null`, `state` reflects progress (e.g. `"aml_checked"`) |
+| Selfie doesn't match Aadhaar photo (confidently) | `flagged` immediately |
+| Face/liveness score borderline | routed to agent-led KYC after AML — `final_status` set by the agent's decision (`verified`/`flagged`) |
+| Cross-check + face-match pass, AML hits sanctions/PEP/adverse-media, or SOF risk = high | `pending` — needs human review, not auto-rejected |
+| All checks pass clean, no borderline score | `verified` |
+| Not all checks have run yet | `final_status` stays `null`, `state` reflects progress (e.g. `"aml_checked"`, `"agent_reviewed"`) |
 
-Tested with 7 scenarios including order-independence (AML running before the identity checks
-finish) — all pass.
+---
 
-## 8. Actual flow (updated — no OCR/document-upload involved)
-
-Your team's real flow is number+OTP based, not photo-upload based:
+## 9. Actual flow
 
 1. **Member C** frontend calls `POST /users/` on Screen 1 → gets `user_id`
 2. User enters Aadhaar number → `POST /ekyc/digilocker/init/{user_id}` → redirect to Setu/DigiLocker → OTP → `GET /ekyc/digilocker/status/{request_id}` polled until `authenticated` → `POST /ekyc/digilocker/fetch-aadhaar/{request_id}` pulls real name/DOB/address/**photo**
 3. User enters PAN number → `POST /pan/verify` → returns verified name from NSDL
-4. `POST /ekyc/cross-check` compares the Aadhaar name against the PAN name (no OCR involved at all — both names come from government-backed APIs directly)
-5. User takes a live selfie → `POST /face/match` compares it against the **Aadhaar photo fetched in step 2** (never against an uploaded PAN/Aadhaar card image)
-6. `POST /aml/screen` runs in parallel/after, screening the verified name
-7. `GET /status/{user_id}` gives the combined final state
+4. `POST /ekyc/cross-check` compares the Aadhaar name against the PAN name
+5. User takes a live selfie → `POST /deepfake/image` checks authenticity → `POST /face/match` compares it against the **Aadhaar photo fetched in step 2**, returns `review_required` for borderline scores
+6. `POST /aml/screen` — sanctions, PEP, adverse media, and declared source-of-funds
+7. **If `review_required` was true**: applicant is connected to a live agent (`/agent/sessions` → video + chat) for manual approve/reject
+8. `GET /status/{user_id}` gives the combined final state
 
 **Member A's OCR/OpenCV module is not part of this flow** — it would only be needed as a fallback
 for users without OTP-linked Aadhaar mobiles, or for passport-based users. Confirm with your team
@@ -164,7 +260,7 @@ whether that fallback path is in scope before building it.
 
 ---
 
-## 9. Quick manual test flow (no frontend needed)
+## 10. Quick manual test flow (no frontend needed)
 
 ```bash
 # 1. create a user
@@ -194,20 +290,28 @@ curl -X POST http://localhost:8000/face/match \
   -H "Content-Type: application/json" \
   -d '{"user_id": "<user_id>", "selfie_base64": "<base64 string here>"}'
 
-# 8. run AML screening
+# 8. run AML + compliance screening
 curl -X POST http://localhost:8000/aml/screen \
   -H "Content-Type: application/json" \
-  -d '{"user_id": "<user_id>", "name": "Jack Doe"}'
+  -d '{"user_id": "<user_id>", "name": "Jack Doe", "declared_income_band": "\u20b95L\u201315L/yr", "declared_source": "Salaried employment"}'
 
-# 9. check final status
+# 9. (only if step 7 returned review_required: true) create an agent-led KYC session
+curl -X POST http://localhost:8000/agent/sessions \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": "<user_id>", "reason": "face_liveness_borderline_score"}'
+
+# 10. check final status
 curl http://localhost:8000/status/<user_id>
 ```
 
 ---
 
-## 10. Known things to fix before demo day
+## 11. Known things to fix before demo day
 
 - [ ] Confirm real Setu sandbox credentials work (test with a real sandbox Aadhaar test number if Setu provides one)
-- [ ] Download the real OpenSanctions CSV, confirm `COLUMN_MAP` matches
+- [ ] Download the real OpenSanctions CSV, confirm `COLUMN_MAP` matches (optional — synthetic data works for a demo)
 - [ ] Set the real ngrok URL in `SETU_REDIRECT_URL` the morning of the demo (it changes on restart)
+- [ ] Set `DAILY_API_KEY` in `.env` if the agent-led KYC video panel is part of the demo
+- [ ] Delete `kyc_demo.db` after pulling schema changes so new tables/columns get created
 - [ ] Tighten CORS `allow_origins` from `"*"` to Member C's actual dev URL if time permits
+- [ ] `/agent/console` has no authentication — acceptable for a demo, not for production
