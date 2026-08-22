@@ -78,6 +78,25 @@ export default function VerificationWorkflowPage() {
 
   const handleCompleteVerification = () => {
     if (isAllCompleted) {
+      if (user?.accountType === 'business') {
+        const activeRepIndex = localStorage.getItem('kyb_active_rep_index');
+        if (activeRepIndex !== null) {
+          try {
+            const saved = localStorage.getItem('kyb_representatives');
+            const reps = saved ? JSON.parse(saved) : [];
+            const idx = parseInt(activeRepIndex, 10);
+            if (reps[idx]) {
+              reps[idx].verificationStatus = 'verified';
+              localStorage.setItem('kyb_representatives', JSON.stringify(reps));
+            }
+          } catch (e) {
+            console.error('Failed to update rep status', e);
+          }
+          localStorage.removeItem('kyb_active_rep_index');
+          navigate('/kyb-directors');
+          return;
+        }
+      }
       navigate('/dashboard');
     }
   };

@@ -73,7 +73,6 @@ export const matchFace = async (userId, selfieBase64, source = "live", deepfakeP
   });
   return response.data;
 };
-
 export const createAgentSession = async (userId, reason) => {
   const response = await API.post("/agent/sessions", { user_id: userId, reason });
   return response.data;
@@ -109,7 +108,6 @@ export const buildAgentWsUrl = (sessionId, role) => {
   const wsBase = httpBase.replace(/^http/, "ws");
   return `${wsBase}/agent/ws/${sessionId}/${role}`;
 };
-
 export const runAmlCheck = async (userId, name) => {
   const response = await API.post("/aml/screen", {
     user_id: userId,

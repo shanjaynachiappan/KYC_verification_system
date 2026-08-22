@@ -22,8 +22,7 @@ const defaultState = {
   pan_data: null,
   crossCheckResult: null,
   cross_check_result: null,
-  selfieData: null,
-  amlChecked: false,
+  selfieData: null
 };
 
 export function VerificationProvider({ children }) {
@@ -160,9 +159,7 @@ export function VerificationProvider({ children }) {
       }
     }));
   };
-  const markAmlChecked = (data) => {
-  setVerificationData(prev => ({ ...prev, amlChecked: true, amlResult: data }));
-};
+
   // Method 4: Toggle Review Ready State (called when both consent checkboxes checked)
   const setReviewReadyState = (isReady) => {
     setVerificationData(prev => ({

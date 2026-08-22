@@ -69,7 +69,7 @@ export default function AuthPage() {
 
       const res = signup(userIdentifier, password);
       if (res.success) {
-        navigate('/verification-workflow');
+        navigate('/account-type');
       } else {
         setError(res.message);
       }
@@ -86,7 +86,13 @@ export default function AuthPage() {
 
       const res = signin(userIdentifier, password);
       if (res.success) {
-        navigate('/verification-workflow');
+        if (res.user?.accountType === 'business') {
+          navigate('/kyb-workflow');
+        } else if (res.user?.accountType === 'individual') {
+          navigate('/verification-workflow');
+        } else {
+          navigate('/account-type');
+        }
       } else {
         setError(res.message);
       }
@@ -389,7 +395,7 @@ export default function AuthPage() {
                 onClick={() => {
                   const demoName = mode === 'signup' ? 'Google User' : 'Shanjaynachiappan';
                   const res = signup(demoName, 'google-pass-123');
-                  if (res.success) navigate('/verification-workflow');
+                  if (res.success) navigate('/account-type');
                 }}
               >
                 <svg className="google-icon" width="18" height="18" viewBox="0 0 24 24">

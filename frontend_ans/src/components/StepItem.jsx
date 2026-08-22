@@ -22,7 +22,7 @@ export default function StepItem({
           </div>
           <div className="step-title-text-wrap">
             <h3 className="step-title">{title}</h3>
-            {!isActive && <p className="step-short-desc">{desc}</p>}
+            {isCompleted && <p className="step-short-desc">{desc}</p>}
           </div>
         </div>
 
@@ -33,7 +33,7 @@ export default function StepItem({
         </span>
       </div>
 
-      {isActive && (
+      {(isActive || isUpcoming) && (
         <div className="card-active-content">
           <p className="active-desc">{desc}</p>
 
@@ -50,7 +50,7 @@ export default function StepItem({
               onClick={() => onContinueStep(id, index)}
               type="button"
             >
-              <span>Continue</span>
+              <span>{isActive ? 'Continue' : 'Start (Test Mode)'}</span>
               <ArrowRight size={16} />
             </button>
           </div>
@@ -58,10 +58,18 @@ export default function StepItem({
       )}
 
       {isCompleted && (
-        <div className="card-completed-content">
+        <div className="card-completed-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span className="completed-check-label">
             <Check size={14} className="green-check" /> Verified successfully
           </span>
+          <button 
+            className="continue-btn"
+            onClick={() => onContinueStep(id, index)}
+            type="button"
+            style={{ padding: '6px 12px', fontSize: '13px' }}
+          >
+            <span>Review (Test Mode)</span>
+          </button>
         </div>
       )}
     </div>

@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
       localStorage.setItem('kyc_current_user', JSON.stringify(sessionUser));
       setUser(sessionUser);
 
-      return { success: true };
+      return { success: true, user: sessionUser };
     } catch {
       return { success: false, message: 'An error occurred during account creation.' };
     }
@@ -60,13 +60,51 @@ export function AuthProvider({ children }) {
         return { success: false, message: 'Invalid username or password.' };
       }
 
-      const sessionUser = { username: matchedUser.username };
+      const sessionUser = { 
+        username: matchedUser.username,
+        accountType: matchedUser.accountType,
+        productType: matchedUser.productType
+      };
       localStorage.setItem('kyc_current_user', JSON.stringify(sessionUser));
       setUser(sessionUser);
 
-      return { success: true };
+      return { success: true, user: sessionUser };
     } catch {
       return { success: false, message: 'An error occurred during sign in.' };
+    }
+  };
+
+  const updateAccountType = (type) => {
+    if (user) {
+      const updatedUser = { ...user, accountType: type };
+      setUser(updatedUser);
+      localStorage.setItem('kyc_current_user', JSON.stringify(updatedUser));
+      
+      try {
+        const users = JSON.parse(localStorage.getItem('kyc_users') || '[]');
+        const userIndex = users.findIndex(u => u.username === user.username);
+        if (userIndex !== -1) {
+          users[userIndex].accountType = type;
+          localStorage.setItem('kyc_users', JSON.stringify(users));
+        }
+      } catch (e) {}
+    }
+  };
+
+  const updateProductType = (product) => {
+    if (user) {
+      const updatedUser = { ...user, productType: product };
+      setUser(updatedUser);
+      localStorage.setItem('kyc_current_user', JSON.stringify(updatedUser));
+      
+      try {
+        const users = JSON.parse(localStorage.getItem('kyc_users') || '[]');
+        const userIndex = users.findIndex(u => u.username === user.username);
+        if (userIndex !== -1) {
+          users[userIndex].productType = product;
+          localStorage.setItem('kyc_users', JSON.stringify(users));
+        }
+      } catch (e) {}
     }
   };
 
@@ -93,7 +131,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, signup, signin, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, signup, signin, logout, isAuthenticated: !!user, updateAccountType, updateProductType }}>
       {children}
     </AuthContext.Provider>
   );

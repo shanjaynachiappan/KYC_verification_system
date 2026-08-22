@@ -276,6 +276,18 @@ export default function AadhaarVerificationPage() {
                   <ShieldCheck size={18} />
                   <span>Verify with DigiLocker</span>
                 </button>
+
+                {error && (
+                  <button 
+                    type="button" 
+                    className="primary-action-btn"
+                    style={{ marginTop: '12px', backgroundColor: '#4b5563', borderColor: '#4b5563' }}
+                    onClick={handleContinueToPan}
+                  >
+                    <span>Skip DigiLocker & Continue</span>
+                    <ArrowRight size={18} />
+                  </button>
+                )}
               </form>
             )}
 

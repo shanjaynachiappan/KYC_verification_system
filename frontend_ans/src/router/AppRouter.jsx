@@ -10,7 +10,15 @@ import LiveSelfiePage from '../pages/LiveSelfiePage';
 import FinalReviewPage from '../pages/FinalReviewPage';
 import DocumentVerificationPage from '../pages/DocumentVerificationPage';
 import DashboardPage from '../pages/DashboardPage';
+import LivenessVerificationPage from '../pages/LivenessVerificationPage';
+
+import AccountTypePage from '../pages/AccountTypePage';
+import ProductTypePage from '../pages/ProductTypePage';
+import BusinessKybEntryPage from '../pages/BusinessKybEntryPage';
+import BusinessKybDirectorsPage from '../pages/BusinessKybDirectorsPage';
+import MockDigilockerConsent from '../pages/MockDigilockerConsent';
 import ProtectedRoute from './ProtectedRoute';
+
 import AmlCheckPage from '../pages/AmlCheckPage';
 import AgentKycPage from '../pages/AgentKycPage';
 import AgentConsolePage from '../pages/AgentConsolePage';
@@ -20,6 +28,38 @@ export default function AppRouter() {
     <Routes>
       <Route path="/" element={<WelcomePage />} />
       <Route path="/auth" element={<AuthPage />} />
+      <Route 
+        path="/account-type" 
+        element={
+          <ProtectedRoute>
+            <AccountTypePage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/product-type" 
+        element={
+          <ProtectedRoute>
+            <ProductTypePage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/kyb-workflow" 
+        element={
+          <ProtectedRoute>
+            <BusinessKybEntryPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/kyb-directors" 
+        element={
+          <ProtectedRoute>
+            <BusinessKybDirectorsPage />
+          </ProtectedRoute>
+        } 
+      />
       <Route 
         path="/verification-workflow" 
         element={
@@ -60,19 +100,27 @@ export default function AppRouter() {
           </ProtectedRoute>
         } 
       />
-      <Route
-        path="/verify/aml-check"
-        element={
-          <ProtectedRoute>
-            <AmlCheckPage />
-          </ProtectedRoute>
-        }
-      />
       <Route 
         path="/verify/review" 
         element={
           <ProtectedRoute>
             <FinalReviewPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/verify/liveness" 
+        element={
+          <ProtectedRoute>
+            <LivenessVerificationPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/verify/aml" 
+        element={
+          <ProtectedRoute>
+            <AmlCheckPage />
           </ProtectedRoute>
         } 
       />
@@ -101,6 +149,8 @@ export default function AppRouter() {
           </ProtectedRoute>
         } 
       />
+      <Route path="/mock-digilocker-consent" element={<MockDigilockerConsent />} />
+      <Route path="/digilocker/callback" element={<Navigate to="/verify/aadhaar" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

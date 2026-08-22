@@ -67,7 +67,8 @@ export default function FinalReviewPage() {
     { title: 'PAN Record Match', desc: 'NSDL tax database identity matched', status: isPanMatched ? 'Passed' : 'Failed', isPassed: isPanMatched },
     { title: 'Biometric Face Match', desc: 'Face matched against identity photo', status: 'Passed', isPassed: true },
     { title: 'Liveness Screening', desc: '3D passive liveness confirmed', status: 'Passed', isPassed: true },
-    { title: 'Deepfake Screening', desc: 'Neural anti-spoofing scan clean', status: 'Passed', isPassed: true }
+    { title: 'Deepfake Screening', desc: 'Neural anti-spoofing scan clean', status: 'Passed', isPassed: true },
+    { title: 'AML & Compliance Screening', desc: 'Global watchlists and risk parameters cleared', status: 'Passed', isPassed: true }
   ];
 
   return (

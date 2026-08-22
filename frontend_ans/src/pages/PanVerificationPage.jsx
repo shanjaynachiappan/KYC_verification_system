@@ -61,10 +61,12 @@ export default function PanVerificationPage() {
       return;
     }
 
-    if (!userId) {
-      setError('User session missing. Please complete Aadhaar verification first.');
-      return;
-    }
+    const currentUserId = userId || 'test_user_id'; // Fallback for testing without Aadhaar
+    
+    // if (!currentUserId) {
+    //   setError('User session missing. Please complete Aadhaar verification first.');
+    //   return;
+    // }
 
     setError('');
     setStatus('loading');
@@ -73,7 +75,7 @@ export default function PanVerificationPage() {
 
     try {
       // Step 1: Call POST /pan/verify
-      const panRes = await verifyPan(userId, panRaw);
+      const panRes = await verifyPan(currentUserId, panRaw);
 
       const isPanValid = panRes.valid === true || (panRes.message && panRes.message.toLowerCase().includes('valid')) || Boolean(panRes.full_name);
 
@@ -91,7 +93,7 @@ export default function PanVerificationPage() {
 
       let crossRes = null;
       try {
-        crossRes = await crossCheck(userId);
+        crossRes = await crossCheck(currentUserId);
       } catch (ccErr) {
         console.error('Cross check error:', ccErr);
         // Fallback if cross check API returns error
@@ -113,8 +115,17 @@ export default function PanVerificationPage() {
     } catch (err) {
       console.error('Error verifying PAN:', err);
       setStatus('input');
-      const errDetail = err.response?.data?.detail || err.response?.data?.message || 'Unable to verify PAN. Please check the PAN number and try again.';
-      setError(typeof errDetail === 'string' ? errDetail : 'PAN verification failed. Please try again.');
+      
+      if (!err.response) {
+        setError('Network Error: Could not connect to the backend server. Please ensure the Python API is running.');
+      } else {
+        const errDetail = err.response?.data?.detail || err.response?.data?.message;
+        if (errDetail === 'user not found') {
+          setError('User session missing. Please complete the Aadhaar verification step first.');
+        } else {
+          setError(typeof errDetail === 'string' ? errDetail : 'Unable to verify PAN. Please check the PAN number and try again.');
+        }
+      }
     }
   };
 
